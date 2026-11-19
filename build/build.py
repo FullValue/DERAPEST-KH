@@ -786,7 +786,7 @@ def zone_map():
     labels = ""
     for c, d in M["main"].items():
         x, y = d["c"]
-        r, fs = (11, 10) if c in small else (17, 14)
+        r, fs = (12, 10.5) if c in small else (18, 14)
         labels += f'<g class="zmap__lbl{" zmap__lbl--s" if c in small else ""}" transform="translate({x} {y})"><circle r="{r}"/><text dy=".36em" font-size="{fs}">{c}</text></g>'
     left = {"Cergy"}
     below = {"Versailles"}
@@ -811,7 +811,7 @@ def zone_map():
       <div class="zmap__shadow" aria-hidden="true"></div>
       <div class="zmap__tilt" id="zmapTilt">
         <svg class="zmap__svg" viewBox="0 0 {M["W"]} {M["H"]}" role="img" aria-label="Carte des zones d'intervention : Île-de-France et Oise">
-          <defs><g id="zm-land">{land}</g></defs>
+          <defs><linearGradient id="zm-grad" x1="0" y1="0" x2=".35" y2="1"><stop offset="0" stop-color="#5fd21f"/><stop offset="1" stop-color="#2f9410"/></linearGradient><g id="zm-land">{land}</g></defs>
           <g class="zmap__nei">{nei}</g>
           <g class="zmap__ext">{layers}</g>
           <g class="zmap__deps">{deps}</g>

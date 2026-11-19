@@ -648,11 +648,13 @@ svg.fill{fill:currentColor;stroke:none}
 .zmap{position:relative;overflow:hidden;padding:clamp(80px,9vw,128px) 0;background:#141714;color:#fff}
 .zmap__bg{position:absolute;inset:0;pointer-events:none;
   background:
-    radial-gradient(50% 60% at 72% 50%,rgba(98,242,29,.18),transparent 70%),
+    radial-gradient(50% 60% at 72% 50%,rgba(98,242,29,.09),transparent 70%),
     radial-gradient(40% 50% at 0% 100%,rgba(255,255,255,.05),transparent 70%),
     linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px) 0 0/48px 48px,
     linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px) 0 0/48px 48px}
 .zmap .container{position:relative}
+.zmap__text{position:relative;z-index:2}
+.zmap__stage{z-index:1}
 .zmap__grid{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:clamp(24px,4vw,64px);align-items:center}
 .zmap__eyebrow{color:var(--muted-dark)}
 .zmap .h2 em{color:#62f21d}
@@ -667,24 +669,25 @@ svg.fill{fill:currentColor;stroke:none}
 .zmap__tel svg{width:42px;height:42px;padding:12px;border-radius:50%;background:rgba(255,255,255,.08);color:#62f21d}
 
 .zmap__stage{position:relative;aspect-ratio:1/1.05;perspective:1600px}
-.zmap__shadow{position:absolute;left:12%;right:8%;bottom:6%;height:24%;border-radius:50%;background:radial-gradient(closest-side,rgba(98,242,29,.28),transparent);filter:blur(22px);transform:rotateX(60deg)}
+.zmap__shadow{position:absolute;left:12%;right:8%;bottom:6%;height:24%;border-radius:50%;background:radial-gradient(closest-side,rgba(98,242,29,.14),transparent);filter:blur(22px);transform:rotateX(60deg)}
 .zmap__tilt{position:absolute;inset:0;display:grid;place-items:center;transform-style:preserve-3d;transform:rotateX(var(--rx,38deg)) rotateZ(var(--rz,-12deg));transition:transform .8s var(--ease)}
 .zmap__svg{width:100%;height:100%;overflow:visible}
-.zmap__nei path{fill:#262a26;stroke:#3d433d;stroke-width:1}
-.zmap__ext use{fill:#1f6b07;stroke:#1f6b07;stroke-width:1}
-.zmap__ext use:first-child{fill:#123f04;stroke:#123f04;filter:drop-shadow(0 18px 18px rgba(98,242,29,.25))}
-.zmap__dep path{fill:#62f21d;stroke:#0d120d;stroke-width:1.4;stroke-linejoin:round;transition:fill .35s,transform .45s var(--ease);transform-box:fill-box;transform-origin:center}
-.zmap__dep:hover path,.zmap__dep.is-hot path{fill:#b4ff7a;transform:translateY(-6px)}
+.zmap__nei path{fill:#222622;stroke:#353a35;stroke-width:1}
+.zmap__nei{-webkit-mask:radial-gradient(closest-side,#000 55%,transparent);mask:radial-gradient(closest-side,#000 55%,transparent);mask-mode:alpha}
+.zmap__ext use{fill:#1a5a08;stroke:#1a5a08;stroke-width:1}
+.zmap__ext use:first-child{fill:#0e3504;stroke:#0e3504;filter:drop-shadow(0 18px 18px rgba(0,0,0,.55))}
+.zmap__dep path{fill:url(#zm-grad);stroke:#103d06;stroke-width:1.2;stroke-linejoin:round;transition:fill .35s,transform .45s var(--ease);transform-box:fill-box;transform-origin:center}
+.zmap__dep:hover path,.zmap__dep.is-hot path{fill:#7ee640;transform:translateY(-6px)}
 .zmap__dep:focus-visible{outline:none}
-.zmap__dep:focus-visible path{fill:#b4ff7a}
+.zmap__dep:focus-visible path{fill:#7ee640}
 .zmap__lbl{pointer-events:none}
-.zmap__lbl circle{fill:#0d120d;stroke:#fff;stroke-width:1.5}
-.zmap__lbl text{fill:#fff;font-family:var(--font);font-weight:800;text-anchor:middle}
+.zmap__lbl circle{fill:#0d120d;stroke:rgba(255,255,255,.85);stroke-width:1}
+.zmap__lbl text{fill:#fff;font-family:var(--font);font-weight:600;letter-spacing:.02em;text-anchor:middle}
 .zmap__pin{pointer-events:none}
 .zmap__pin circle{fill:#fff;stroke:#0d120d;stroke-width:1.2}
 .zmap__pin .zmap__pulse{fill:#fff;stroke:none;opacity:.7;transform-box:fill-box;transform-origin:center;animation:zmPulse 2.2s ease-out infinite}
 .zmap__pin:nth-child(2n) .zmap__pulse{animation-delay:.7s}.zmap__pin:nth-child(3n) .zmap__pulse{animation-delay:1.4s}
-.zmap__pin text{fill:#fff;font-family:var(--font);font-size:12px;font-weight:700;paint-order:stroke;stroke:#0d120d;stroke-width:3.5px;stroke-linejoin:round}
+.zmap__pin text{fill:#fff;font-family:var(--font);font-size:12px;font-weight:600;paint-order:stroke;stroke:rgba(13,18,13,.85);stroke-width:3px;stroke-linejoin:round}
 @keyframes zmPulse{from{transform:scale(1);opacity:.8}to{transform:scale(3.4);opacity:0}}
 
 .zmap__inset{position:absolute;left:0;bottom:2%;display:flex;align-items:center;gap:14px;padding:12px 18px 12px 12px;border-radius:20px;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);color:#fff}
