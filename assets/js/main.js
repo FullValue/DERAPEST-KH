@@ -220,3 +220,71 @@ if (zStage) {
     el.addEventListener('pointerleave', () => link(el.getAttribute('href'), false));
   });
 }
+
+/* ---------- Carrousels : défilement auto droite → gauche + glisser ---------- */
+$$('.slider').forEach((track) => {
+  const items = [...track.children];
+  if (items.length < 2) return;
+  const delay = +track.dataset.autoplay || 3500;
+  const stepSize = () => items[0].getBoundingClientRect().width + parseFloat(getComputedStyle(track).columnGap || 16);
+  const maxScroll = () => track.scrollWidth - track.clientWidth;
+
+  // points de navigation
+  const dots = document.createElement('div');
+  dots.className = 'slider-dots';
+  const btns = items.map((_, i) => {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.setAttribute('aria-label', `Aller à l'élément ${i + 1}`);
+    b.addEventListener('click', () => { goTo(i); pause(); });
+    dots.appendChild(b);
+    return b;
+  });
+  track.after(dots);
+  const current = () => Math.round(track.scrollLeft / stepSize());
+  const syncDots = () => {
+    const last = track.scrollLeft >= maxScroll() - 4;
+    const idx = last ? items.length - 1 : current();
+    btns.forEach((b, i) => b.classList.toggle('is-active', i === idx));
+  };
+  const goTo = (i) => track.scrollTo({ left: Math.min(i * stepSize(), maxScroll()), behavior: 'smooth' });
+  track.addEventListener('scroll', syncDots, { passive: true });
+  syncDots();
+
+  // autoplay (en pause au survol, au toucher, hors écran, ou si mouvement réduit)
+  let paused = false, resumeT, visible = false;
+  const pause = () => { paused = true; clearTimeout(resumeT); resumeT = setTimeout(() => (paused = false), 6000); };
+  track.addEventListener('pointerenter', (e) => e.pointerType === 'mouse' && (paused = true));
+  track.addEventListener('pointerleave', (e) => e.pointerType === 'mouse' && (paused = false));
+  track.addEventListener('touchstart', pause, { passive: true });
+  track.addEventListener('focusin', pause);
+  if ('IntersectionObserver' in window) new IntersectionObserver(([e]) => (visible = e.isIntersecting), { threshold: 0.3 }).observe(track);
+  if (!reduced) setInterval(() => {
+    if (paused || !visible || document.hidden || maxScroll() < 8) return;
+    if (track.scrollLeft >= maxScroll() - 4) track.scrollTo({ left: 0, behavior: 'smooth' });
+    else goTo(current() + 1);
+  }, delay);
+
+  // glisser à la souris (le doigt et le trackpad fonctionnent nativement)
+  let startX = 0, startLeft = 0, down = false, moved = false;
+  track.addEventListener('pointerdown', (e) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0) return;
+    down = true; moved = false; startX = e.clientX; startLeft = track.scrollLeft;
+  });
+  window.addEventListener('pointermove', (e) => {
+    if (!down) return;
+    const dx = e.clientX - startX;
+    if (!moved && Math.abs(dx) > 5) { moved = true; track.classList.add('is-dragging'); }
+    if (moved) track.scrollLeft = startLeft - dx;
+  });
+  window.addEventListener('pointerup', () => {
+    if (!down) return;
+    down = false;
+    if (moved) {
+      track.classList.remove('is-dragging');
+      goTo(current());
+      pause();
+    }
+  });
+  track.addEventListener('dragstart', (e) => e.preventDefault());
+});

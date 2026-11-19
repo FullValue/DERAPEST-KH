@@ -4,6 +4,7 @@ Générateur statique du site Derapest.
 Usage :  python3 build/build.py
 Écrit toutes les pages .html, sitemap.xml et robots.txt à la racine du projet.
 """
+import hashlib
 import json
 import os
 import sys
@@ -21,6 +22,11 @@ ALL = SERVICES + PESTS
 BY_SLUG = {p["slug"]: p for p in ALL}
 WA_URL = f"https://wa.me/{SITE['whatsapp']}?text={quote(SITE['wa_message'])}"
 PAGES = []  # (filename, priority) pour le sitemap
+
+
+def ver(path):
+    with open(os.path.join(ROOT, path), 'rb') as f:
+        return hashlib.md5(f.read()).hexdigest()[:8]
 
 
 def zone_file(z):
@@ -272,7 +278,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600;1,700;1,800&display=swap" rel="stylesheet">
 <link rel="preload" as="image" href="assets/img/logo-sm.png">
 {preload}
-<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/style.css?v={ver("assets/css/style.css")}">
 <script>try{{if(sessionStorage.getItem('dp-seen'))document.documentElement.classList.add('pl-skip')}}catch(e){{}}</script>
 {ld}
 </head>
@@ -283,7 +289,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 {body}
 </main>
 {footer()}
-<script src="assets/js/main.js" defer></script>
+<script src="assets/js/main.js?v={ver("assets/js/main.js")}" defer></script>
 </body>
 </html>
 '''
@@ -421,7 +427,7 @@ def contact_section(selected="", title='Un nuisible ?<br><em>On s\'en occupe.</e
     ) + '<option>Désinfection après sinistre</option><option>Contrat professionnel</option><option>Je ne sais pas</option>'
     zones_opts = "".join(f'<option>{z["name"]} ({z["num"]})</option>' for z in ZONES)
     return f'''<section class="contact" id="devis">
-  <div class="contact__bg"><img src="assets/img/hero.webp" alt="" loading="lazy"></div>
+  <div class="contact__bg"><img src="assets/img/photos/hero-accueil.webp" alt="" loading="lazy"></div>
   <div class="container contact__grid">
     <div class="contact__intro reveal">
       {eyebrow("Devis gratuit", True)}
@@ -624,7 +630,7 @@ def build_zones_hub():
             for z in lst
         )
 
-    body = f'''{page_hero(crumbs, "Île-de-France &amp; Oise", "Nos zones d'intervention :<br><em>Île-de-France et Oise.</em>", "Nos techniciens interviennent dans les huit départements franciliens et dans l'Oise, chez les particuliers comme chez les professionnels. Choisissez votre département pour en savoir plus.", "hero.webp", "Technicien Derapest en intervention", ["9 départements couverts", "Particuliers &amp; professionnels", "Devis gratuit"], "Demander un devis")}
+    body = f'''{page_hero(crumbs, "Île-de-France &amp; Oise", "Nos zones d'intervention :<br><em>Île-de-France et Oise.</em>", "Nos techniciens interviennent dans les huit départements franciliens et dans l'Oise, chez les particuliers comme chez les professionnels. Choisissez votre département pour en savoir plus.", "photos/technicien.webp", "Technicien en combinaison en intervention", ["9 départements couverts", "Particuliers &amp; professionnels", "Devis gratuit"], "Demander un devis")}
 
 <section class="section">
   <div class="container">
@@ -672,7 +678,7 @@ def build_pro():
         ("Recevez-vous un rapport après chaque visite ?", "Oui, un compte rendu écrit est envoyé par e-mail après chaque passage : postes contrôlés, consommations, produits utilisés, recommandations."),
         GENERIC_FAQ[0],
     ]
-    body = f'''{page_hero(crumbs, "Contrats professionnels", "Professionnels :<br><em>un plan anti-nuisibles qui tient l'audit.</em>", "Restaurants, commerces, copropriétés, entrepôts, industrie : nous mettons en place un plan de lutte suivi, traçable et discret, en Île-de-France et dans l'Oise.", "s3.webp", "Infestation de blattes en cuisine", ["Rapport après chaque passage", "Interventions hors horaires", "Île-de-France &amp; Oise"], "Demander une visite gratuite")}
+    body = f'''{page_hero(crumbs, "Contrats professionnels", "Professionnels :<br><em>un plan anti-nuisibles qui tient l'audit.</em>", "Restaurants, commerces, copropriétés, entrepôts, industrie : nous mettons en place un plan de lutte suivi, traçable et discret, en Île-de-France et dans l'Oise.", "photos/professionnels.webp", "Cuisine professionnelle en inox", ["Rapport après chaque passage", "Interventions hors horaires", "Île-de-France &amp; Oise"], "Demander une visite gratuite")}
 
 <section class="section">
   <div class="container">
@@ -706,7 +712,7 @@ def build_pro():
     page("professionnels.html", title="Dératisation et désinsectisation pour professionnels IDF & Oise | Derapest",
          desc="Contrats anti-nuisibles pour restaurants, commerces, copropriétés, entrepôts et industrie en Île-de-France et dans l'Oise. Traçabilité, rapports, visite gratuite.",
          body=body, active="pro", schemas=[breadcrumb_ld(crumbs), faq_ld(faq)], priority="0.8",
-         og_image="assets/img/s3.webp", preload_img="s3.webp")
+         og_image="assets/img/photos/professionnels.webp", preload_img="photos/professionnels.webp")
 
 
 def build_contact():
@@ -837,7 +843,7 @@ def build_home():
     pests = "".join(
         f'<a class="pest" href="{p["slug"]}.html"><img src="assets/img/{p["img"]}" alt="{escape(p["img_alt"])}" loading="lazy"><div class="pest__body"><small>{p["kicker"]}</small><h3>{p["nav"]}</h3><p>{p["short"]}</p><span class="pest__more">Voir le traitement {I["arrow"]}</span></div></a>'
         for p in PESTS
-    ) + f'<a class="pest" href="deratisation.html"><img src="assets/img/s9.webp" alt="Fouine sortant d\'une souche" loading="lazy"><div class="pest__body"><small>Rongeurs</small><h3>Rats, souris &amp; mulots</h3><p>Combles, caves, cuisines : on traite et on rebouche.</p><span class="pest__more">Voir le traitement {I["arrow"]}</span></div></a>'
+    ) + f'<a class="pest" href="deratisation.html"><img src="assets/img/photos/rat.webp" alt="Rat en gros plan" loading="lazy"><div class="pest__body"><small>Rongeurs</small><h3>Rats, souris &amp; mulots</h3><p>Combles, caves, cuisines : on traite et on rebouche.</p><span class="pest__more">Voir le traitement {I["arrow"]}</span></div></a>'
     zcards = "".join(
         f'<a class="zcard reveal" href="{zone_file(z)}"><span class="zcard__num">{z["num"]}</span><h3>{z["name"]}</h3><p>{", ".join(z["cities"][:3])}…</p><span class="zcard__more">Voir {I["arrow"]}</span></a>'
         for z in ZONES
@@ -852,7 +858,7 @@ def build_home():
         ("Combien de passages faut-il pour venir à bout d'une infestation ?", "Cela dépend du nuisible et de l'ampleur du problème. Certains traitements se règlent en une intervention, d'autres (punaises de lit, rongeurs installés) demandent plusieurs passages. Le nombre est annoncé après le diagnostic."),
     ]
     body = f'''<section class="hero">
-  <div class="hero__bg"><img src="assets/img/hero.webp" alt="Technicien Derapest en combinaison effectuant un traitement" fetchpriority="high"></div>
+  <div class="hero__bg"><img src="assets/img/photos/hero-accueil.webp" alt="Technicien Derapest en combinaison effectuant un traitement" fetchpriority="high"></div>
   <div class="hero__content">
     <p class="eyebrow eyebrow--glass"><i></i>Dératisation · Désinsectisation · Désinfection</p>
     <h1 class="hero__title">
@@ -879,7 +885,7 @@ def build_home():
   <div class="container">
     <div class="about reveal">
       <div class="about__media">
-        <img src="assets/img/hero.webp" alt="Traitement anti-nuisibles par pulvérisation" loading="lazy">
+        <img src="assets/img/photos/technicien.webp" alt="Technicien en combinaison réalisant une nébulisation" loading="lazy">
         <span class="about__badge">{I["shield"]}Techniciens habilités</span>
         <div class="about__caption"><strong>Derapest Anti-Nuisibles</strong><span>Île-de-France · Oise</span></div>
       </div>
@@ -895,7 +901,7 @@ def build_home():
         <div class="about__cta">{btn("#prestations", "Découvrir nos prestations", "dark")}{btn("#devis", "Devis gratuit", "outline")}</div>
       </div>
     </div>
-    <div class="pillars">
+    <div class="pillars slider" data-autoplay="3800">
       <article class="pillar reveal"><span class="pillar__num">01</span><h3>Interventions</h3><p>Réalisées uniquement par des techniciens habilités et diplômés.</p></article>
       <article class="pillar reveal"><span class="pillar__num">02</span><h3>Sécurité</h3><p>Respect strict de la législation, produits agréés et homologués, formations régulières.</p></article>
       <article class="pillar reveal"><span class="pillar__num">03</span><h3>Maîtrise</h3><p>Un traitement choisi pour protéger les personnes, les animaux, les biens et l'environnement.</p></article>
@@ -910,7 +916,7 @@ def build_home():
       <div>{eyebrow("Nos prestations")}<h2 class="h2">Quatre métiers,<br><em>une seule exigence.</em></h2></div>
       {btn("professionnels.html", "Offre professionnels", "outline")}
     </div>
-    <div class="cards cards--4">{srv_cards}</div>
+    <div class="cards cards--4 slider" data-autoplay="3200">{srv_cards}</div>
   </div>
 </section>
 
@@ -946,7 +952,7 @@ def build_home():
     page("index.html",
          title="Dératisation Paris, Île-de-France & Oise : intervention rapide | Derapest",
          desc="Intervention rapide à Paris, en Île-de-France et dans l'Oise : dératisation, désinsectisation, désinfection, fumigation. Techniciens habilités, devis gratuit.",
-         body=body, active="home", schemas=[faq_ld(faq)], priority="1.0", preload_img="hero.webp")
+         body=body, active="home", schemas=[faq_ld(faq)], priority="1.0", preload_img="photos/hero-accueil.webp")
 
 
 # ------------------------------------------------------------------ sitemap / robots
