@@ -92,10 +92,10 @@ svg.fill{fill:currentColor;stroke:none}
 /* ==========================================================
    PRELOADER
    ========================================================== */
-.preloader{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:var(--black);color:#fff;transition:clip-path 1s var(--ease-io),visibility 0s 1s;clip-path:inset(0 0 0 0)}
+.preloader{position:fixed;inset:0;z-index:1000;display:grid;place-items:center;background:var(--black);color:#fff;transition:clip-path 1s var(--ease-io);clip-path:inset(0 0 0 0)}
 .pl-skip .preloader{display:none}
 .preloader::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 50% at 50% 45%,rgba(87,210,20,.16),transparent 70%)}
-.preloader.is-done{clip-path:inset(0 0 100% 0);visibility:hidden}
+.preloader.is-done{clip-path:inset(0 0 100% 0);pointer-events:none}
 .preloader__inner{position:relative;width:min(380px,78vw);display:flex;flex-direction:column;align-items:center;gap:30px;transition:transform .8s var(--ease-io),opacity .5s}
 .preloader.is-done .preloader__inner{transform:translateY(-40px);opacity:0}
 .preloader__logo{position:relative;overflow:hidden;width:100%;animation:plLogo 1s var(--ease) both}

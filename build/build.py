@@ -153,7 +153,7 @@ def header(active):
 
 PRELOADER = '''<div class="preloader" id="preloader" aria-hidden="true">
   <div class="preloader__inner">
-    <div class="preloader__logo"><img src="assets/img/logo-sm.png" alt="" width="420" height="178"><span class="preloader__scan"></span></div>
+    <div class="preloader__logo"><img src="assets/img/logo-sm.png" alt="" width="420" height="178" fetchpriority="high"><span class="preloader__scan"></span></div>
     <div class="preloader__bar"><span id="preloaderBar"></span></div>
     <div class="preloader__meta"><span>Sécurisation des lieux</span><span class="preloader__count"><em id="preloaderCount">0</em>%</span></div>
   </div>
@@ -382,6 +382,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <meta name="twitter:image" content="{SITE["url"]}/{og_image}">
 <meta name="format-detection" content="telephone=no">
 <link rel="alternate" type="text/plain" title="Résumé pour les IA" href="/llms.txt">
+<link rel="preload" as="image" href="assets/img/logo-sm.webp" fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin-italic.woff2" crossorigin>
 {preload}
