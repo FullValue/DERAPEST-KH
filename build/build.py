@@ -409,7 +409,7 @@ def related_section(slugs, title="Nos autres prestations"):
       <div>{eyebrow("À découvrir")}<h2 class="h2">{title}</h2></div>
       {btn("zones-intervention.html", "Voir nos zones", "outline")}
     </div>
-    <div class="cards">{cards}</div>
+    <div class="cards slider" data-autoplay="3400">{cards}</div>
   </div>
 </section>'''
 
@@ -569,7 +569,7 @@ def build_zone(z):
       <div>{eyebrow(f"Nos interventions {z['prep']}")}<h2 class="h2">Les nuisibles que nous traitons<br><em>{z['prep']}.</em></h2></div>
       {btn("#devis", "Devis gratuit", "dark")}
     </div>
-    <div class="cards">{cards}</div>
+    <div class="cards slider" data-autoplay="3400">{cards}</div>
   </div>
 </section>
 
@@ -853,6 +853,8 @@ def build_home():
         for s, lbl in zip(SERVICES, ["Rats &amp; souris", "Insectes", "Assainir un lieu", "Marchandises"])
     )
     depts = "".join(f'<a href="{zone_file(z)}" title="{escape(z["name"])}">{z["num"]}<small>{z["name"]}</small></a>' for z in ZONES)
+    depts_dup = "".join(f'<a href="{zone_file(z)}" tabindex="-1">{z["num"]}<small>{z["name"]}</small></a>' for z in ZONES)
+    depts = f'<div class="hero__depts-view"><div class="hero__depts-track">{depts}<span class="hero__depts-dup" aria-hidden="true">{depts_dup}</span></div></div>'
     faq = GENERIC_FAQ + [
         ("Dans quels départements intervenez-vous ?", "Dans les 8 départements d'Île-de-France (Paris, Seine-et-Marne, Yvelines, Essonne, Hauts-de-Seine, Seine-Saint-Denis, Val-de-Marne, Val-d'Oise) et dans l'Oise."),
         ("Combien de passages faut-il pour venir à bout d'une infestation ?", "Cela dépend du nuisible et de l'ampleur du problème. Certains traitements se règlent en une intervention, d'autres (punaises de lit, rongeurs installés) demandent plusieurs passages. Le nombre est annoncé après le diagnostic."),
