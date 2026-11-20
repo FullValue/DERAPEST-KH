@@ -1,0 +1,8 @@
+{
+  "cleanUrls": false,
+  "redirects": [
+    { "source": "/:path*", "has": [{ "type": "host", "value": "derapest.fr" }], "destination": "https://www.derapest.fr/:path*", "permanent": true },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "derapest.com" }], "destination": "https://www.derapest.fr/:path*", "permanent": true },
+    { "source": "/:path*", "has": [{ "type": "host", "value": "www.derapest.com" }], "destination": "https://www.derapest.fr/:path*", "permanent": true }
+  ]
+}
