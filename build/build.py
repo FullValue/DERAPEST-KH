@@ -106,7 +106,7 @@ def nav_html(active):
         return ' class="is-active"' if active == key else ""
 
     return f'''<nav class="nav" id="nav" aria-label="Navigation principale">
-    <a href="index.html"{cls("home")}>Accueil</a>
+    <a href="./"{cls("home")}>Accueil</a>
     <div class="nav__dd{" is-current" if active == "prestations" else ""}">
       <button type="button" class="nav__toggle" aria-expanded="false">Prestations {I["chev"]}</button>
       <div class="dd dd--wide">
@@ -139,7 +139,7 @@ def topbar():
 def header(active):
     return f'''{topbar()}
 <header class="header" id="header">
-  <a class="header__logo" href="index.html" aria-label="Derapest — accueil">
+  <a class="header__logo" href="./" aria-label="Derapest — accueil">
     <img src="assets/img/logo-sm.png" alt="Derapest Anti-Nuisibles" width="420" height="178">
   </a>
   {nav_html(active)}
@@ -209,9 +209,34 @@ def local_business():
         "image": f"{SITE['url']}/assets/img/logo-full.jpg",
         "telephone": SITE["phone_intl"],
         "email": SITE["email"],
-        "description": "Dératisation, désinsectisation, désinfection et fumigation en Île-de-France et dans l'Oise.",
+        "description": "Entreprise de dératisation, désinsectisation, désinfection et fumigation en Île-de-France et dans l'Oise. Une équipe qui cumule plus de 30 ans d'expérience, des techniciens habilités et des produits homologués, pour les particuliers et les professionnels.",
+        "slogan": "Un nuisible ? On s'en occupe.",
+        "knowsLanguage": "fr",
+        "openingHoursSpecification": [{"@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"], "opens": "00:00", "closes": "23:59"}],
+        "contactPoint": [{"@type": "ContactPoint", "telephone": SITE["phone_intl"], "contactType": "customer service", "areaServed": "FR", "availableLanguage": "French"}],
         "areaServed": [{"@type": "AdministrativeArea", "name": f"{z['name']} ({z['num']})"} for z in ZONES],
-        "knowsAbout": [s["nav"] for s in ALL],
+        "knowsAbout": [s["nav"] for s in ALL] + ["Rats", "Souris", "Frelons asiatiques", "Puces", "Mites", "Plan HACCP"],
+        "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Prestations anti-nuisibles",
+            "itemListElement": [
+                {"@type": "Offer", "itemOffered": {"@type": "Service", "name": s["nav"], "url": f"{SITE['url']}/{s['slug']}.html", "description": s["short"]}}
+                for s in ALL
+            ],
+        },
+    }
+
+
+def website_ld():
+    return {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "@id": f"{SITE['url']}/#site",
+        "name": SITE["full_name"],
+        "alternateName": ["Derapest", "derapest.fr", "derapest.com"],
+        "url": f"{SITE['url']}/",
+        "inLanguage": "fr-FR",
+        "publisher": {"@id": f"{SITE['url']}/#entreprise"},
     }
 
 
@@ -242,8 +267,66 @@ def breadcrumb_html(items):
         if i == len(items) - 1:
             parts.append(f'<span aria-current="page">{n}</span>')
         else:
-            parts.append(f'<a href="{u or "index.html"}">{n}</a>')
+            parts.append(f'<a href="{u or "./"}">{n}</a>')
     return '<nav class="crumbs" aria-label="Fil d\'Ariane">' + "<i>/</i>".join(parts) + "</nav>"
+
+
+# ------------------------------------------------------------------
+# PERFORMANCE : dimensions, srcset et décodage des images
+# ------------------------------------------------------------------
+import re as _re
+from PIL import Image as _Image
+
+_DIMS = {}
+HERO_SIZES = {"photos/hero-accueil.webp": "100vw"}
+PHERO_SIZES = "(max-width: 960px) 92vw, 45vw"
+CARD_SIZES = "(max-width: 600px) 86vw, (max-width: 1024px) 46vw, 30vw"
+
+
+def img_dims(rel):
+    if rel not in _DIMS:
+        try:
+            with _Image.open(os.path.join(ROOT, "assets/img", rel)) as im:
+                _DIMS[rel] = im.size
+        except OSError:
+            _DIMS[rel] = None
+    return _DIMS[rel]
+
+
+def srcset_for(rel):
+    """Liste srcset quand une variante légère existe (ex. photos/x-560.webp)."""
+    base, ext = os.path.splitext(rel)
+    for small in (f"{base}-560{ext}", f"{base}-900{ext}"):
+        if os.path.exists(os.path.join(ROOT, "assets/img", small)):
+            ws, wl = img_dims(small)[0], img_dims(rel)[0]
+            return f"assets/img/{small} {ws}w, assets/img/{rel} {wl}w"
+    return ""
+
+
+def _fix_img(m):
+    tag = m.group(0)
+    src = _re.search(r'src="assets/img/([^"]+)"', tag)
+    if not src:
+        return tag
+    rel = src.group(1)
+    if rel == "logo-sm.png":
+        rel = "logo-sm.webp"
+        tag = tag.replace('src="assets/img/logo-sm.png"', 'src="assets/img/logo-sm.webp"')
+    dims = img_dims(rel)
+    if dims:
+        tag = _re.sub(r'\s(width|height)="\d+"', "", tag)
+        tag = tag.replace("<img ", f'<img width="{dims[0]}" height="{dims[1]}" ', 1)
+    ss = srcset_for(rel)
+    if ss and "srcset=" not in tag:
+        sizes = HERO_SIZES.get(rel) or (PHERO_SIZES if "fetchpriority" in tag else CARD_SIZES)
+        tag = tag.replace("<img ", f'<img srcset="{ss}" sizes="{sizes}" ', 1)
+    if 'loading="lazy"' in tag and "decoding=" not in tag:
+        tag = tag.replace("<img ", '<img decoding="async" ', 1)
+    return tag
+
+
+def optimize_imgs(html):
+    return _re.sub(r"<img\b[^>]*>", _fix_img, html)
 
 
 def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", robots="index, follow", og_image="assets/img/logo-full.jpg", preload_img=None):
@@ -252,7 +335,11 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
         f'<script type="application/ld+json">{json.dumps(s, ensure_ascii=False)}</script>'
         for s in [local_business(), *schemas]
     )
-    preload = f'<link rel="preload" as="image" href="assets/img/{preload_img}">' if preload_img else ""
+    preload = ""
+    if preload_img:
+        ss = srcset_for(preload_img)
+        preload = (f'<link rel="preload" as="image" href="assets/img/{preload_img}" imagesrcset="{ss}" imagesizes="{HERO_SIZES.get(preload_img, PHERO_SIZES)}" fetchpriority="high">'
+                   if ss else f'<link rel="preload" as="image" href="assets/img/{preload_img}" fetchpriority="high">')
     html = f'''<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -272,11 +359,15 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <meta property="og:description" content="{escape(desc)}">
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{SITE["url"]}/{og_image}">
+<meta property="og:image:alt" content="{escape(title)}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Exo:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600;1,700;1,800&display=swap" rel="stylesheet">
-<link rel="preload" as="image" href="assets/img/logo-sm.png">
+<meta name="twitter:title" content="{escape(title)}">
+<meta name="twitter:description" content="{escape(desc)}">
+<meta name="twitter:image" content="{SITE["url"]}/{og_image}">
+<meta name="format-detection" content="telephone=no">
+<link rel="alternate" type="text/plain" title="Résumé pour les IA" href="/llms.txt">
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin-italic.woff2" crossorigin>
 {preload}
 <link rel="stylesheet" href="assets/css/style.css?v={ver("assets/css/style.css")}">
 <script>try{{if(sessionStorage.getItem('dp-seen'))document.documentElement.classList.add('pl-skip')}}catch(e){{}}</script>
@@ -293,6 +384,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 </body>
 </html>
 '''
+    html = optimize_imgs(html)
     with open(os.path.join(ROOT, filename), "w", encoding="utf-8") as f:
         f.write(html)
     if not robots.startswith("noindex"):
@@ -320,7 +412,7 @@ def page_hero(crumbs, kicker, h1, lead, img, img_alt, chips=None, cta_label="Obt
       <ul class="phero__chips">{chips_html}</ul>
     </div>
     <div class="phero__media">
-      <img src="assets/img/{img}" alt="{escape(img_alt)}" width="500" height="400">
+      <img src="assets/img/{img}" alt="{escape(img_alt)}" width="500" height="400" fetchpriority="high">
       <div class="phero__badge"><strong>Devis gratuit</strong><span>Réponse rapide par téléphone ou WhatsApp</span></div>
     </div>
   </div>
@@ -557,8 +649,8 @@ def build_zone(z):
     ctx = "".join(f"<p>{c}</p>" for c in z["context"])
     others = "".join(f'<a class="zchip" href="{zone_file(o)}"><b>{o["num"]}</b>{o["name"]}</a>' for o in ZONES if o is not z)
     faq = z["faq"] + GENERIC_FAQ[:2]
-    title = f"Dératisation & désinsectisation {z['name']} ({z['num']}) | Derapest"
-    desc = f"Dératisation, désinsectisation et désinfection {z['prep']} ({z['num']}) : rats, souris, punaises de lit, cafards, guêpes. Techniciens habilités, devis gratuit."
+    title = f"Dératisation {z['name']} ({z['num']}) : rats, insectes" + (" | Derapest" if len(z["name"]) < 15 else "")
+    desc = f"Dératisation et désinsectisation {z['prep']} ({z['num']}) : rats, souris, punaises de lit, cafards, guêpes. 30 ans d'expérience, devis gratuit."
     h1 = f"Dératisation et désinsectisation<br><em>{z['prep']} ({z['num']})</em>"
 
     body = f'''{page_hero(crumbs, f"{z['region']} · {z['name']} ({z['num']})", h1, z["intro"], focus[0]["img"], focus[0]["img_alt"], ["Plus de 30 ans d'expérience", "Devis gratuit et sans engagement", f"Tout le département ({z['num']})"])}
@@ -645,7 +737,7 @@ def build_zones_hub():
 
 {contact_section()}'''
     page("zones-intervention.html", title="Zones d'intervention : Île-de-France et Oise | Derapest",
-         desc="Derapest intervient pour la dératisation, la désinsectisation et la désinfection à Paris, dans les 77, 78, 91, 92, 93, 94, 95 et dans l'Oise (60). Devis gratuit.",
+         desc="Dératisation, désinsectisation et désinfection à Paris (75), dans les 77, 78, 91, 92, 93, 94, 95 et dans l'Oise (60). Devis gratuit.",
          body=body, active="zones", schemas=[breadcrumb_ld(crumbs)], priority="0.8")
 
 
@@ -709,8 +801,8 @@ def build_pro():
 {faq_section(faq, 'Professionnels :<br><em>vos questions.</em>')}
 
 {contact_section("Contrat professionnel", 'Parlons de<br><em>votre établissement.</em>')}'''
-    page("professionnels.html", title="Dératisation et désinsectisation pour professionnels IDF & Oise | Derapest",
-         desc="Contrats anti-nuisibles pour restaurants, commerces, copropriétés, entrepôts et industrie en Île-de-France et dans l'Oise. Traçabilité, rapports, visite gratuite.",
+    page("professionnels.html", title="Contrat anti-nuisibles professionnels IDF, Oise | Derapest",
+         desc="Contrats anti-nuisibles pour restaurants, commerces, copropriétés et entrepôts en Île-de-France et dans l'Oise. Rapports HACCP, visite gratuite.",
          body=body, active="pro", schemas=[breadcrumb_ld(crumbs), faq_ld(faq)], priority="0.8",
          og_image="assets/img/photos/professionnels.webp", preload_img="photos/professionnels.webp")
 
@@ -734,7 +826,7 @@ def build_contact():
 {contact_section("", 'Votre devis<br><em>gratuit.</em>')}
 {zones_strip("Nous intervenons dans les 8 départements d'Île-de-France et dans l'Oise.", "Où intervenons-nous ?")}'''
     page("contact.html", title="Contact et devis gratuit | Derapest Anti-Nuisibles",
-         desc="Contactez Derapest pour un devis gratuit : dératisation, désinsectisation, désinfection en Île-de-France et dans l'Oise. Téléphone, WhatsApp ou formulaire.",
+         desc="Devis gratuit pour dératisation, désinsectisation ou désinfection en Île-de-France et dans l'Oise. Par téléphone, WhatsApp ou formulaire.",
          body=body, active="contact", schemas=[breadcrumb_ld(crumbs)], priority="0.7")
 
 
@@ -953,9 +1045,9 @@ def build_home():
 
 {contact_section()}'''
     page("index.html",
-         title="Dératisation Paris, Île-de-France & Oise : intervention rapide | Derapest",
-         desc="Intervention rapide à Paris, en Île-de-France et dans l'Oise : dératisation, désinsectisation, désinfection, fumigation. Techniciens habilités, devis gratuit.",
-         body=body, active="home", schemas=[faq_ld(faq)], priority="1.0", preload_img="photos/hero-accueil.webp")
+         title="Dératisation et désinsectisation Paris, IDF, Oise | Derapest",
+         desc="Dératisation, désinsectisation, désinfection à Paris, en Île-de-France et dans l'Oise. Plus de 30 ans d'expérience, intervention 24h/24, devis gratuit.",
+         body=body, active="home", schemas=[website_ld(), faq_ld(faq)], priority="1.0", preload_img="photos/hero-accueil.webp")
 
 
 # ------------------------------------------------------------------ sitemap / robots
@@ -968,8 +1060,54 @@ def build_seo_files():
     )
     with open(os.path.join(ROOT, "sitemap.xml"), "w", encoding="utf-8") as f:
         f.write(f'<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n{urls}\n</urlset>\n')
+    bots = ["GPTBot", "OAI-SearchBot", "ChatGPT-User", "ClaudeBot", "Claude-SearchBot", "Claude-User",
+            "PerplexityBot", "Perplexity-User", "Google-Extended", "Applebot-Extended", "Bingbot", "CCBot"]
+    ai = "".join(f"User-agent: {b}\nAllow: /\n\n" for b in bots)
     with open(os.path.join(ROOT, "robots.txt"), "w", encoding="utf-8") as f:
-        f.write(f"User-agent: *\nAllow: /\nDisallow: /build/\n\nSitemap: {SITE['url']}/sitemap.xml\n")
+        f.write(f"User-agent: *\nAllow: /\nDisallow: /build/\n\n# Moteurs de recherche IA : bienvenus\n{ai}Sitemap: {SITE['url']}/sitemap.xml\n")
+    write_llms_txt()
+
+
+def write_llms_txt():
+    u = SITE["url"]
+    srv = "\n".join(f"- [{s['nav']}]({u}/{s['slug']}.html) : {s['short']}" for s in SERVICES)
+    pst = "\n".join(f"- [{p['nav']}]({u}/{p['slug']}.html) : {p['short']}" for p in PESTS)
+    zns = "\n".join(f"- [{z['name']} ({z['num']})]({u}/{zone_file(z)}) : {', '.join(z['cities'][:5])}" for z in ZONES)
+    faq = "\n\n".join(f"### {q}\n{a}" for q, a in GENERIC_FAQ)
+    txt = f"""# {SITE['full_name']}
+
+> Entreprise de dératisation, désinsectisation, désinfection et fumigation intervenant à Paris, dans les 8 départements d'Île-de-France et dans l'Oise (60), pour les particuliers et les professionnels. L'équipe cumule plus de 30 ans d'expérience.
+
+## L'essentiel
+- Nom : {SITE['full_name']} (Derapest)
+- Métier : lutte contre les nuisibles (rats, souris, cafards, punaises de lit, guêpes, frelons, fourmis, puces, mites)
+- Zone : Paris (75), Seine-et-Marne (77), Yvelines (78), Essonne (91), Hauts-de-Seine (92), Seine-Saint-Denis (93), Val-de-Marne (94), Val-d'Oise (95), Oise (60)
+- Expérience : plus de 30 ans d'expérience cumulée dans l'équipe
+- Engagements : techniciens habilités et diplômés, produits agréés et homologués, compte rendu écrit après chaque intervention
+- Promesses : {", ".join(t for t, _ in PROMISES)}
+- Téléphone : {SITE['phone_display']} ({SITE['phone_intl']})
+- E-mail : {SITE['email']}
+- WhatsApp : https://wa.me/{SITE['whatsapp']}
+- Site : {u}/
+
+## Prestations
+{srv}
+- [Contrats professionnels]({u}/professionnels.html) : restaurants, commerces, copropriétés, entrepôts, industrie (plan de lutte suivi, rapports, HACCP)
+
+## Nuisibles traités
+{pst}
+
+## Zones d'intervention
+{zns}
+
+## Questions fréquentes
+{faq}
+
+## Contact
+- [Demander un devis gratuit]({u}/contact.html)
+"""
+    with open(os.path.join(ROOT, "llms.txt"), "w", encoding="utf-8") as f:
+        f.write(txt)
 
 
 if __name__ == "__main__":

@@ -24,12 +24,12 @@ const waUrl = (text) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(te
   }
   const bar = $('#preloaderBar');
   const count = $('#preloaderCount');
-  const MIN = 1800;
+  const MIN = 900;
   const start = performance.now();
   let loaded = document.readyState === 'complete';
   let finished = false;
   window.addEventListener('load', () => (loaded = true));
-  setTimeout(() => (loaded = true), 5000);
+  setTimeout(() => (loaded = true), 1800);
 
   const finish = () => {
     if (finished) return;
@@ -50,7 +50,7 @@ const waUrl = (text) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(te
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
-  setTimeout(finish, 6500); // sécurité : ne jamais bloquer le site
+  setTimeout(finish, 3000); // sécurité : ne jamais bloquer le site
 })();
 
 /* ---------- Header ---------- */
