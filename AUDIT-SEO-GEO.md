@@ -57,7 +57,7 @@ Mesures en mobile (412 px), première visite avec préloader, réseau non compri
 ### Priorité 1 : cette semaine (impact fort)
 1. **Google Search Console** : ajoute la propriété `derapest.fr` (validation DNS chez IONOS), puis soumets `https://www.derapest.fr/sitemap.xml`. Sans ça, Google mettra plusieurs semaines à découvrir le site.
 2. **Fiche Google Business Profile** : c'est le facteur n°1 pour apparaître dans le « pack local » (la carte). Pour une entreprise sans boutique, crée-la en mode « zone desservie » avec les 9 départements, la catégorie principale « Service d'extermination et de lutte contre les nuisibles », le téléphone, le site et des photos réelles.
-3. **Mentions légales** : 5 champs sont encore « [à compléter] » (forme juridique, SIRET, siège, directeur de publication, hébergeur). C'est une obligation légale (LCEN), et un signal de confiance pour Google et les IA. L'hébergeur est Vercel Inc. (adresse à jour sur vercel.com/legal).
+3. **Mentions légales** : 5 champs sont encore « [à compléter] » (forme juridique, SIRET, siège, directeur de publication, hébergeur). C'est une obligation légale (LCEN), et un signal de confiance pour Google et les IA. Hébergeur : déjà rempli (Vercel Inc.).
 4. **Bing Webmaster Tools** : importe la propriété depuis Search Console en un clic. ChatGPT et Copilot s'appuient sur l'index Bing.
 
 ### Priorité 2 : ce mois-ci

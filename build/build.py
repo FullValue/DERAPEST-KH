@@ -206,7 +206,7 @@ def local_business():
         "name": SITE["full_name"],
         "url": f"{SITE['url']}/",
         "logo": f"{SITE['url']}/assets/img/logo.png",
-        "image": f"{SITE['url']}/assets/img/logo-full.jpg",
+        "image": [f"{SITE['url']}/assets/img/og-derapest.jpg", f"{SITE['url']}/assets/img/photos/technicien.webp"],
         "telephone": SITE["phone_intl"],
         "email": SITE["email"],
         "description": "Entreprise de dératisation, désinsectisation, désinfection et fumigation en Île-de-France et dans l'Oise. Une équipe qui cumule plus de 30 ans d'expérience, des techniciens habilités et des produits homologués, pour les particuliers et les professionnels.",
@@ -329,7 +329,9 @@ def optimize_imgs(html):
     return _re.sub(r"<img\b[^>]*>", _fix_img, html)
 
 
-def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", robots="index, follow", og_image="assets/img/logo-full.jpg", preload_img=None):
+def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", robots="index, follow", og_image="assets/img/og-derapest.jpg", preload_img=None):
+    if not og_image.endswith(".jpg"):
+        og_image = "assets/img/og-derapest.jpg"  # WebP mal géré par WhatsApp / LinkedIn
     canonical = f"{SITE['url']}/" if filename == "index.html" else f"{SITE['url']}/{filename}"
     ld = "\n".join(
         f'<script type="application/ld+json">{json.dumps(s, ensure_ascii=False)}</script>'
@@ -350,8 +352,9 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <meta name="robots" content="{robots}">
 <link rel="canonical" href="{canonical}">
 <meta name="theme-color" content="#0a0c0a">
-<link rel="icon" type="image/png" href="assets/img/favicon.png">
-<link rel="apple-touch-icon" href="assets/img/favicon.png">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/img/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:site_name" content="{SITE["full_name"]}">
@@ -359,6 +362,8 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <meta property="og:description" content="{escape(desc)}">
 <meta property="og:url" content="{canonical}">
 <meta property="og:image" content="{SITE["url"]}/{og_image}">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="{escape(title)}">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="{escape(title)}">
@@ -369,7 +374,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin-italic.woff2" crossorigin>
 {preload}
-<link rel="stylesheet" href="assets/css/style.css?v={ver("assets/css/style.css")}">
+<link rel="stylesheet" href="assets/css/style.min.css?v={ver("assets/css/style.css")}">
 <script>try{{if(sessionStorage.getItem('dp-seen'))document.documentElement.classList.add('pl-skip')}}catch(e){{}}</script>
 {ld}
 </head>
@@ -843,7 +848,7 @@ def build_legal():
   <h2>Certifications</h2>
   <p>Numéro de certificat Certibiocide (application de produits biocides) {todo}</p>
   <h2>Hébergement</h2>
-  <p>Hébergeur, adresse et téléphone {todo}</p>
+  <p>Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, États-Unis — <a href="https://vercel.com" rel="noopener">vercel.com</a></p>
   <h2>Données personnelles</h2>
   <p>Les informations transmises via le formulaire ou WhatsApp sont utilisées uniquement pour répondre à votre demande et établir un devis. Elles ne sont ni cédées ni revendues. Conformément au RGPD, vous disposez d'un droit d'accès, de rectification et de suppression de vos données en écrivant à {SITE["email"]}.</p>
   <h2>Propriété intellectuelle</h2>
@@ -1110,7 +1115,18 @@ def write_llms_txt():
         f.write(txt)
 
 
+def minify_css():
+    src = open(os.path.join(ROOT, "assets/css/style.css"), encoding="utf-8").read()
+    out = _re.sub(r"/\*[\s\S]*?\*/", "", src)
+    out = _re.sub(r"\s+", " ", out)
+    out = _re.sub(r"\s*([{};,>])\s*", r"\1", out)
+    out = out.replace(";}", "}")
+    with open(os.path.join(ROOT, "assets/css/style.min.css"), "w", encoding="utf-8") as f:
+        f.write(out.strip())
+
+
 if __name__ == "__main__":
+    minify_css()
     build_home()
     for p in ALL:
         build_service(p)
