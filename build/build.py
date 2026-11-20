@@ -144,8 +144,8 @@ def header(active):
   </a>
   {nav_html(active)}
   <div class="header__actions">
-    <a class="header__tel" href="tel:{SITE["phone_intl"]}">{I["phone"]}<span>{SITE["phone_display"]}</span></a>
-    {btn("contact.html", "Devis gratuit", "light", "btn--sm header__cta")}
+    <a class="header__tel" href="tel:{SITE["phone_intl"]}" aria-label="Appeler le {SITE["phone_display"]}">{I["phone"]}<span>{SITE["phone_display"]}</span></a>
+    {btn("contact.html", "Devis gratuit", "light", "btn--sm header__cta", ' aria-label="Devis gratuit : aller à la page contact"')}
     <button class="burger" id="burger" aria-label="Ouvrir le menu" aria-expanded="false" aria-controls="nav"><span></span><span></span></button>
   </div>
 </header>'''
@@ -178,7 +178,7 @@ def footer():
       <p>Dératisation, désinsectisation, désinfection et fumigation pour particuliers et professionnels en Île-de-France et dans l'Oise.</p>
     </div>
     <div><h4>Prestations</h4>{srv}<a href="professionnels.html">Professionnels</a></div>
-    <div><h4>Nuisibles</h4>{pst}<a href="contact.html">Devis gratuit</a></div>
+    <div><h4>Nuisibles</h4>{pst}<a href="contact.html">Demander un devis</a></div>
     <div class="footer__zones"><h4>Zones d'intervention</h4>{zns}</div>
   </div>
   <div class="container footer__bottom">
@@ -280,7 +280,7 @@ from PIL import Image as _Image
 _DIMS = {}
 HERO_SIZES = {"photos/hero-accueil.webp": "100vw"}
 PHERO_SIZES = "(max-width: 960px) 92vw, 45vw"
-CARD_SIZES = "(max-width: 600px) 86vw, (max-width: 1024px) 46vw, 30vw"
+CARD_SIZES = "(max-width: 600px) 70vw, (max-width: 1024px) 40vw, 26vw"
 
 
 def img_dims(rel):
@@ -329,6 +329,17 @@ def optimize_imgs(html):
     return _re.sub(r"<img\b[^>]*>", _fix_img, html)
 
 
+_CSS_CACHE = []
+
+
+def INLINE_CSS():
+    """CSS minifié intégré dans la page : aucune requête bloquante au premier affichage."""
+    if not _CSS_CACHE:
+        css = open(os.path.join(ROOT, "assets/css/style.min.css"), encoding="utf-8").read()
+        _CSS_CACHE.append(css.replace("url(../fonts/", "url(assets/fonts/").replace("</style", "<\\/style"))
+    return _CSS_CACHE[0]
+
+
 def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", robots="index, follow", og_image="assets/img/og-derapest.jpg", preload_img=None):
     if not og_image.endswith(".jpg"):
         og_image = "assets/img/og-derapest.jpg"  # WebP mal géré par WhatsApp / LinkedIn
@@ -374,7 +385,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/exo-latin-italic.woff2" crossorigin>
 {preload}
-<link rel="stylesheet" href="assets/css/style.min.css?v={ver("assets/css/style.css")}">
+<style>{INLINE_CSS()}</style>
 <script>try{{if(sessionStorage.getItem('dp-seen'))document.documentElement.classList.add('pl-skip')}}catch(e){{}}</script>
 {ld}
 </head>
