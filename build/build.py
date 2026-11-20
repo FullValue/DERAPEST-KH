@@ -303,7 +303,7 @@ def page(filename, *, title, desc, body, active="", schemas=(), priority="0.7", 
 
 
 def page_hero(crumbs, kicker, h1, lead, img, img_alt, chips=None, cta_label="Obtenir mon devis gratuit"):
-    chips = chips or ["Devis gratuit et sans engagement", "Techniciens habilités", "Île-de-France &amp; Oise"]
+    chips = chips or ["Plus de 30 ans d'expérience", "Devis gratuit et sans engagement", "Techniciens habilités"]
     chips_html = "".join(f"<li>{I['shield']}{c}</li>" for c in chips)
     return f'''<section class="phero">
   <div class="phero__glow" aria-hidden="true"></div>
@@ -561,7 +561,7 @@ def build_zone(z):
     desc = f"Dératisation, désinsectisation et désinfection {z['prep']} ({z['num']}) : rats, souris, punaises de lit, cafards, guêpes. Techniciens habilités, devis gratuit."
     h1 = f"Dératisation et désinsectisation<br><em>{z['prep']} ({z['num']})</em>"
 
-    body = f'''{page_hero(crumbs, f"{z['region']} · {z['name']} ({z['num']})", h1, z["intro"], focus[0]["img"], focus[0]["img_alt"], ["Devis gratuit et sans engagement", "Particuliers &amp; professionnels", f"Tout le département ({z['num']})"])}
+    body = f'''{page_hero(crumbs, f"{z['region']} · {z['name']} ({z['num']})", h1, z["intro"], focus[0]["img"], focus[0]["img_alt"], ["Plus de 30 ans d'expérience", "Devis gratuit et sans engagement", f"Tout le département ({z['num']})"])}
 
 <section class="section">
   <div class="container">
@@ -630,7 +630,7 @@ def build_zones_hub():
             for z in lst
         )
 
-    body = f'''{page_hero(crumbs, "Île-de-France &amp; Oise", "Nos zones d'intervention :<br><em>Île-de-France et Oise.</em>", "Nos techniciens interviennent dans les huit départements franciliens et dans l'Oise, chez les particuliers comme chez les professionnels. Choisissez votre département pour en savoir plus.", "photos/technicien.webp", "Technicien en combinaison en intervention", ["9 départements couverts", "Particuliers &amp; professionnels", "Devis gratuit"], "Demander un devis")}
+    body = f'''{page_hero(crumbs, "Île-de-France &amp; Oise", "Nos zones d'intervention :<br><em>Île-de-France et Oise.</em>", "Nos techniciens interviennent dans les huit départements franciliens et dans l'Oise, chez les particuliers comme chez les professionnels. Choisissez votre département pour en savoir plus.", "photos/technicien.webp", "Technicien en combinaison en intervention", ["Plus de 30 ans d'expérience", "9 départements couverts", "Devis gratuit"], "Demander un devis")}
 
 <section class="section">
   <div class="container">
@@ -678,7 +678,7 @@ def build_pro():
         ("Recevez-vous un rapport après chaque visite ?", "Oui, un compte rendu écrit est envoyé par e-mail après chaque passage : postes contrôlés, consommations, produits utilisés, recommandations."),
         GENERIC_FAQ[0],
     ]
-    body = f'''{page_hero(crumbs, "Contrats professionnels", "Professionnels :<br><em>un plan anti-nuisibles qui tient l'audit.</em>", "Restaurants, commerces, copropriétés, entrepôts, industrie : nous mettons en place un plan de lutte suivi, traçable et discret, en Île-de-France et dans l'Oise.", "photos/professionnels.webp", "Cuisine professionnelle en inox", ["Rapport après chaque passage", "Interventions hors horaires", "Île-de-France &amp; Oise"], "Demander une visite gratuite")}
+    body = f'''{page_hero(crumbs, "Contrats professionnels", "Professionnels :<br><em>un plan anti-nuisibles qui tient l'audit.</em>", "Restaurants, commerces, copropriétés, entrepôts, industrie : nous mettons en place un plan de lutte suivi, traçable et discret, en Île-de-France et dans l'Oise.", "photos/professionnels.webp", "Cuisine professionnelle en inox", ["Plus de 30 ans d'expérience", "Rapport après chaque passage", "Interventions hors horaires"], "Demander une visite gratuite")}
 
 <section class="section">
   <div class="container">
@@ -868,7 +868,7 @@ def build_home():
       <span class="line"><span>à Paris et en Île-de-France</span></span>
       <span class="line"><span><em>et dans l'Oise.</em></span></span>
     </h1>
-    <p class="hero__lead">Rats, souris, cafards, punaises de lit, guêpes : des techniciens habilités interviennent chez vous avec des produits homologués et un traitement adapté à chaque situation.</p>
+    <p class="hero__lead">Rats, souris, cafards, punaises de lit, guêpes : une équipe forte de <strong>plus de 30 ans d'expérience</strong> intervient chez vous avec des produits homologués et un traitement adapté à chaque situation.</p>
     <div class="hero__ctas">
       {btn("#devis", "Devis gratuit", "green")}
       <a class="hero__tel" href="tel:{SITE["phone_intl"]}">{I["phone"]}<span>{SITE["phone_display"]}</span></a>
@@ -888,15 +888,16 @@ def build_home():
     <div class="about reveal">
       <div class="about__media">
         <img src="assets/img/photos/technicien.webp" alt="Technicien en combinaison réalisant une nébulisation" loading="lazy">
-        <span class="about__badge">{I["shield"]}Techniciens habilités</span>
+        <span class="about__badge">{I["shield"]}Plus de 30 ans d'expérience</span>
         <div class="about__caption"><strong>Derapest Anti-Nuisibles</strong><span>Île-de-France · Oise</span></div>
       </div>
       <div class="about__body">
         {eyebrow("Notre engagement")}
         <h2 class="h2">Un regard expert.<br><em>À vos côtés.</em></h2>
         <p class="lead">Une infestation ne se règle pas avec une bombe du commerce. Elle se règle avec un diagnostic, la bonne méthode et un vrai suivi.</p>
-        <p class="muted">Chaque intervention est réalisée par des techniciens habilités et diplômés. Le traitement est choisi en tenant compte de la sécurité des personnes, des animaux, des biens et de l'environnement, avec des produits agréés et homologués, dans le respect strict de la réglementation.</p>
-        <div class="stats">
+        <p class="muted">Notre équipe cumule plus de 30 ans d'expérience du terrain. Chaque intervention est réalisée par des techniciens habilités et diplômés. Le traitement est choisi en tenant compte de la sécurité des personnes, des animaux, des biens et de l'environnement, avec des produits agréés et homologués, dans le respect strict de la réglementation.</p>
+        <div class="stats stats--3">
+          <div class="stat"><small>Expérience</small><strong><em>30<sup>+</sup></em></strong><span>années de terrain dans l'équipe</span></div>
           <div class="stat"><small>Départements</small><strong><em>9</em></strong><span>les 8 d'Île-de-France et l'Oise</span></div>
           <div class="stat"><small>Nos métiers</small><strong><em>4</em></strong><span>dératisation, désinsectisation, désinfection, fumigation</span></div>
         </div>

@@ -25,6 +25,7 @@ SITE = {
 # Icônes disponibles : "bolt", "shield", "doc", "phone", "pin"
 # ------------------------------------------------------------------
 PROMISES = [
+    ("Plus de 30 ans d'expérience", "shield"),
     ("Intervention 24h/24 – 7j/7", "bolt"),
     ("Traitement garanti", "shield"),
     ("Devis gratuit et rapide", "doc"),
