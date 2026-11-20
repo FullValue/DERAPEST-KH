@@ -270,7 +270,7 @@ svg.fill{fill:currentColor;stroke:none}
 .about__cta{display:flex;flex-wrap:wrap;gap:12px}
 .pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:16px}
 .pillar{padding:28px;background:#fff;border-radius:var(--radius);transition:background .45s var(--ease),color .45s var(--ease),transform .45s var(--ease)}
-.pillar:hover{background:var(--ink);color:#fff;transform:translateY(-6px)}
+.pillar:hover{background:var(--ink);color:#fff}
 .pillar__num{display:inline-block;font-style:italic;font-weight:800;font-size:28px;color:var(--green-deep);margin-bottom:24px;transition:color .45s}
 .pillar:hover .pillar__num{color:var(--green)}
 .pillar h3{font-weight:700;font-size:21px;letter-spacing:-.02em;margin-bottom:8px}
@@ -724,7 +724,8 @@ svg.fill{fill:currentColor;stroke:none}
 .slider{display:flex!important;gap:16px;overflow-x:auto;overscroll-behavior-x:contain;scroll-snap-type:x mandatory;scrollbar-width:none;padding:4px 2px 10px;margin:-4px -2px 0;cursor:grab;-webkit-overflow-scrolling:touch}
 .slider::-webkit-scrollbar{display:none}
 .slider>*{flex:0 0 calc((100% - 32px) / 3.2);scroll-snap-align:start;min-width:0}
-.pillars.slider>*{flex-basis:calc((100% - 48px) / 3.4)}
+.pillars.slider{margin-top:32px;padding-top:4px}
+.pillars.slider>*{flex-basis:calc((100% - 48px) / 3.4);align-self:stretch}
 .slider.is-dragging{scroll-snap-type:none;cursor:grabbing;user-select:none}
 .slider.is-dragging a{pointer-events:none}
 .slider-dots{display:flex;justify-content:center;gap:8px;margin-top:22px}
